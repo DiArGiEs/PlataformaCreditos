@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PlataformaCreditos.Data;
@@ -29,7 +30,17 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IMessageProducer, RabbitMqProducer>();
 builder.Services.AddHostedService<RabbitMqConsumerService>();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -48,6 +59,7 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+    app.UseHttpsRedirection();
 }
 else
 {
@@ -55,7 +67,6 @@ else
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthentication();
@@ -69,6 +80,7 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.MapRazorPages();
+
 app.MapHub<PlataformaCreditos.Hubs.SolicitudHub>("/hubs/solicitudes");
 
 app.Run();
