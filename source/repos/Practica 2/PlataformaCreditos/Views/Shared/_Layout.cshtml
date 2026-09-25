@@ -33,6 +33,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Solicitudes" asp-action="Crear">Nueva Solicitud</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Notificaciones" asp-action="MisNotificaciones">Mis Notificaciones</a>
+                            </li>
 
                             @if (User.IsInRole("Analista"))
                             {
@@ -58,7 +61,7 @@
     </header>
 
     <div class="container">
-        <!-- Notificación en tiempo real vía WebSocket -->
+        <!-- Notificación global en tiempo real vía WebSocket -->
         <div id="wsAlertBox" class="alert alert-info alert-dismissible fade show d-none" role="alert">
             <span id="wsAlertMessage"></span>
             <button type="button" class="btn-close" onclick="document.getElementById('wsAlertBox').classList.add('d-none')"></button>
@@ -81,7 +84,7 @@
 
     @if (User.Identity != null && User.Identity.IsAuthenticated)
     {
-        <!-- Client Library de SignalR / WebSocket -->
+        <!-- Cliente JS SignalR / WebSocket -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
         <script>
             const connection = new signalR.HubConnectionBuilder()

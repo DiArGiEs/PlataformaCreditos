@@ -1,0 +1,38 @@
+@model IEnumerable<PlataformaCreditos.Models.Notificacion>
+
+@{
+    ViewData["Title"] = "Mis Notificaciones";
+}
+
+<h2 class="mb-4">Mis Notificaciones</h2>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Solicitud</th>
+            <th>Mensaje</th>
+            <th>Fecha Recibido (UTC)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted">No tienes notificaciones registradas.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>Solicitud #@item.SolicitudId</td>
+                    <td>@item.Texto</td>
+                    <td>@item.FechaProcesamientoUtc.ToString("g")</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
