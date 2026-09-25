@@ -278,3 +278,4 @@ C:\Users\dougl\source\repos\Practica 2\PlataformaCreditos\obj\Debug\net10.0\refi
 C:\Users\dougl\source\repos\Practica 2\PlataformaCreditos\obj\Debug\net10.0\PlataformaCreditos.pdb
 C:\Users\dougl\source\repos\Practica 2\PlataformaCreditos\obj\Debug\net10.0\PlataformaCreditos.genruntimeconfig.cache
 C:\Users\dougl\source\repos\Practica 2\PlataformaCreditos\obj\Debug\net10.0\ref\PlataformaCreditos.dll
+C:\Users\dougl\source\repos\Practica 2\PlataformaCreditos\obj\Debug\net10.0\PlataformaCreditos.sourcelink.json

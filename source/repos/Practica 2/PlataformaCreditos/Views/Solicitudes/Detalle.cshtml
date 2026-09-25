@@ -1,0 +1,26 @@
+@model PlataformaCreditos.Models.SolicitudCredito
+
+@{
+    ViewData["Title"] = "Detalle de Solicitud";
+}
+
+<h2 class="mb-3">Detalle de Solicitud #@Model.Id</h2>
+
+<div class="card col-md-6">
+    <div class="card-body">
+        <p><strong>Monto Solicitado:</strong> @Model.MontoSolicitado.ToString("C")</p>
+        <p><strong>Fecha de Solicitud:</strong> @Model.FechaSolicitud.ToLocalTime().ToString("f")</p>
+        <p><strong>Estado:</strong> 
+            <span class="badge @(Model.Estado == PlataformaCreditos.Models.EstadoSolicitud.Aprobado ? "bg-success" : Model.Estado == PlataformaCreditos.Models.EstadoSolicitud.Rechazado ? "bg-danger" : "bg-warning")">
+                @Model.Estado
+            </span>
+        </p>
+        @if (Model.Estado == PlataformaCreditos.Models.EstadoSolicitud.Rechazado)
+        {
+            <p class="text-danger"><strong>Motivo de Rechazo:</strong> @Model.MotivoRechazo</p>
+        }
+    </div>
+    <div class="card-footer">
+        <a asp-action="MisSolicitudes" class="btn btn-secondary">Volver a Mis Solicitudes</a>
+    </div>
+</div>
