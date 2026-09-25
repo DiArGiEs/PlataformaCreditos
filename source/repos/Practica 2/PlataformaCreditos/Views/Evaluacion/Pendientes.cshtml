@@ -1,0 +1,60 @@
+@model IEnumerable<PlataformaCreditos.Models.SolicitudCredito>
+
+@{
+    ViewData["Title"] = "Solicitudes Pendientes";
+}
+
+<h2 class="mb-4">Evaluación de Solicitudes Pendientes</h2>
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["MensajeError"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["MensajeError"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Cliente ID</th>
+            <th>Ingresos Mensuales</th>
+            <th>Monto Solicitado</th>
+            <th>Fecha</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center">No hay solicitudes pendientes de evaluación.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>Cliente #@item.ClienteId</td>
+                    <td>@item.Cliente?.IngresosMensuales.ToString("C")</td>
+                    <td>@item.MontoSolicitado.ToString("C")</td>
+                    <td>@item.FechaSolicitud.ToLocalTime().ToString("g")</td>
+                    <td>
+                        <a asp-action="Evaluar" asp-route-id="@item.Id" class="btn btn-primary btn-sm">Evaluar</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

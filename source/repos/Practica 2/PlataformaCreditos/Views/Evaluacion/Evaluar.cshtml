@@ -1,0 +1,62 @@
+@model PlataformaCreditos.Models.ViewModels.EvaluacionSolicitudViewModel
+
+@{
+    ViewData["Title"] = "Evaluar Solicitud";
+}
+
+<h2 class="mb-3">Evaluación de Solicitud #@Model.SolicitudId</h2>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <strong>Información del Cliente y Solicitud</strong>
+            </div>
+            <div class="card-body">
+                <p><strong>Código de Cliente:</strong> Cliente #@Model.Solicitud?.ClienteId</p>
+                <p><strong>Ingresos Mensuales:</strong> @Model.Solicitud?.Cliente?.IngresosMensuales.ToString("C")</p>
+                <p><strong>Límite de Crédito (10x):</strong> @((Model.Solicitud?.Cliente?.IngresosMensuales * 10)?.ToString("C"))</p>
+                <hr />
+                <p><strong>Monto Solicitado:</strong> <span class="fs-5 text-primary">@Model.Solicitud?.MontoSolicitado.ToString("C")</span></p>
+                <p><strong>Fecha de Solicitud:</strong> @Model.Solicitud?.FechaSolicitud.ToLocalTime().ToString("f")</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <strong>Dictamen del Analista</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="Evaluar" method="post">
+                    <input type="hidden" asp-for="SolicitudId" />
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label d-block">Decisión</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="Accion" value="Aprobar" id="radioAprobar" checked />
+                            <label class="form-check-label text-success fw-bold" for="radioAprobar">Aprobar</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="Accion" value="Rechazar" id="radioRechazar" />
+                            <label class="form-check-label text-danger fw-bold" for="radioRechazar">Rechazar</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MotivoRechazo" class="form-label">Motivo de Rechazo (Obligatorio si rechaza)</label>
+                        <textarea asp-for="MotivoRechazo" class="form-control" rows="3" placeholder="Escriba aquí el motivo si la opción es Rechazar..."></textarea>
+                        <span asp-validation-for="MotivoRechazo" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Pendientes" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success">Guardar Evaluación</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
