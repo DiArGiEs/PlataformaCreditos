@@ -25,7 +25,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddSignalR();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -66,5 +66,6 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.MapRazorPages();
+app.MapHub<PlataformaCreditos.Hubs.SolicitudHub>("/hubs/solicitudes");
 
 app.Run();

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using PlataformaCreditos.Data;
+using PlataformaCreditos.Hubs;
 using PlataformaCreditos.Models;
 using PlataformaCreditos.Models.ViewModels;
 using System.Runtime.InteropServices;
@@ -13,12 +15,13 @@ namespace PlataformaCreditos.Controllers
     public class AnalistaController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IHubContext<SolicitudHub> _hubContext;
 
-        public AnalistaController(ApplicationDbContext context)
+        public AnalistaController(ApplicationDbContext context, IHubContext<SolicitudHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
-
 
         [HttpGet("")]
         [HttpGet("Index")]
@@ -32,7 +35,6 @@ namespace PlataformaCreditos.Controllers
 
             return View(pendientes);
         }
-
 
         [HttpGet("Evaluar/{id}")]
         public async Task<IActionResult> Evaluar(int? id)
@@ -60,7 +62,6 @@ namespace PlataformaCreditos.Controllers
             return View(model);
         }
 
-
         [HttpPost("Evaluar/{id?}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Evaluar(AnalistaEvaluarViewModel model)
@@ -73,7 +74,7 @@ namespace PlataformaCreditos.Controllers
 
             if (solicitud.Estado != EstadoSolicitud.Pendiente)
             {
-                ModelState.AddModelError("", "La solicitud ya fue aprobada o rechazada previamente.");
+                ModelState.AddModelError("", "La solicitud ya fue procesada anteriormente.");
             }
 
             if (model.Accion == "Rechazar" && string.IsNullOrWhiteSpace(model.MotivoRechazo))
@@ -86,7 +87,7 @@ namespace PlataformaCreditos.Controllers
                 decimal limiteAprobacion = solicitud.Cliente.IngresosMensuales * 5m;
                 if (solicitud.MontoSolicitado > limiteAprobacion)
                 {
-                    ModelState.AddModelError("", $"No se puede aprobar: El monto solicitado ({solicitud.MontoSolicitado:C}) supera el límite máximo permitido para aprobación de 5 veces el ingreso del cliente ({limiteAprobacion:C}).");
+                    ModelState.AddModelError("", $"No se puede aprobar: El monto solicitado ({solicitud.MontoSolicitado:C}) supera el límite de 5 veces el ingreso ({limiteAprobacion:C}).");
                 }
             }
 
@@ -106,7 +107,18 @@ namespace PlataformaCreditos.Controllers
                 _context.Update(solicitud);
                 await _context.SaveChangesAsync();
 
-                TempData["MensajeExito"] = $"La solicitud #{solicitud.Id} se procesó correctamente como {solicitud.Estado}.";
+                // Notificar en tiempo real mediante WebSocket al propietario de la solicitud (P6)
+                if (solicitud.Cliente?.UsuarioId != null)
+                {
+                    await _hubContext.Clients.Group(solicitud.Cliente.UsuarioId).SendAsync("SolicitudEstadoActualizado", new
+                    {
+                        SolicitudId = solicitud.Id,
+                        Estado = solicitud.Estado.ToString(),
+                        MotivoRechazo = solicitud.MotivoRechazo
+                    });
+                }
+
+                TempData["MensajeExito"] = $"La solicitud #{solicitud.Id} se procesó como {solicitud.Estado}.";
                 return RedirectToAction(nameof(Index));
             }
 

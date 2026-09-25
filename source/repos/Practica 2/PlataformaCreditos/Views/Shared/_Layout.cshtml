@@ -42,12 +42,28 @@
                             }
                         }
                     </ul>
+
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <!-- Indicador visual del estado de conexión WebSocket -->
+                        <div class="me-3 d-flex align-items-center">
+                            <span id="wsStatusBadge" class="badge bg-secondary">WS: Conectando...</span>
+                        </div>
+                    }
+
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
+
     <div class="container">
+        <!-- Notificación en tiempo real vía WebSocket -->
+        <div id="wsAlertBox" class="alert alert-info alert-dismissible fade show d-none" role="alert">
+            <span id="wsAlertMessage"></span>
+            <button type="button" class="btn-close" onclick="document.getElementById('wsAlertBox').classList.add('d-none')"></button>
+        </div>
+
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -62,6 +78,68 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <!-- Client Library de SignalR / WebSocket -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+        <script>
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/hubs/solicitudes")
+                .withAutomaticReconnect()
+                .build();
+
+            const statusBadge = document.getElementById("wsStatusBadge");
+            const alertBox = document.getElementById("wsAlertBox");
+            const alertMessage = document.getElementById("wsAlertMessage");
+
+            connection.onreconnecting(() => {
+                if (statusBadge) {
+                    statusBadge.className = "badge bg-warning text-dark";
+                    statusBadge.innerText = "WS: Reconectando...";
+                }
+            });
+
+            connection.onreconnected(() => {
+                if (statusBadge) {
+                    statusBadge.className = "badge bg-success";
+                    statusBadge.innerText = "WS: Conectado";
+                }
+            });
+
+            connection.on("SolicitudEstadoActualizado", (data) => {
+                if (alertBox && alertMessage) {
+                    alertBox.classList.remove("d-none");
+                    let msg = `<strong>¡Notificación en tiempo real!</strong> Tu solicitud #${data.solicitudId} cambió a estado: <strong>${data.estado}</strong>.`;
+                    if (data.motivoRechazo) {
+                        msg += ` Motivo: ${data.motivoRechazo}`;
+                    }
+                    alertMessage.innerHTML = msg;
+                }
+
+                const celdaEstado = document.getElementById(`estado-solicitud-${data.solicitudId}`);
+                if (celdaEstado) {
+                    celdaEstado.innerText = data.estado;
+                }
+            });
+
+            connection.start()
+                .then(() => {
+                    if (statusBadge) {
+                        statusBadge.className = "badge bg-success";
+                        statusBadge.innerText = "WS: Conectado";
+                    }
+                })
+                .catch(err => {
+                    if (statusBadge) {
+                        statusBadge.className = "badge bg-danger";
+                        statusBadge.innerText = "WS: Desconectado";
+                    }
+                    console.error("Error al conectar WebSocket:", err.toString());
+                });
+        </script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
