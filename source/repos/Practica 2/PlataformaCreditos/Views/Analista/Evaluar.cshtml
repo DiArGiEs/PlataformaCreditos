@@ -1,0 +1,73 @@
+@model PlataformaCreditos.Models.ViewModels.AnalistaEvaluarViewModel
+
+@{
+    ViewData["Title"] = "Evaluar Solicitud #" + Model.SolicitudId;
+    var ingresos = Model.Solicitud?.Cliente?.IngresosMensuales ?? 0m;
+    var limite5x = ingresos * 5m;
+    var monto = Model.Solicitud?.MontoSolicitado ?? 0m;
+}
+
+<h2 class="mb-4">Evaluar Solicitud de Crédito #@Model.SolicitudId</h2>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Detalles de Evaluación</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Código del Cliente:</strong> Cliente #@Model.Solicitud?.ClienteId</p>
+                <p><strong>Ingresos Mensuales:</strong> @ingresos.ToString("C")</p>
+                <p><strong>Límite de Aprobación Analista (5x Ingreso):</strong> <span class="fw-bold text-success">@limite5x.ToString("C")</span></p>
+                <hr />
+                <p><strong>Monto Solicitado:</strong> <span class="fs-4 text-primary fw-bold">@monto.ToString("C")</span></p>
+                <p><strong>Fecha de Solicitud:</strong> @Model.Solicitud?.FechaSolicitud.ToLocalTime().ToString("f")</p>
+
+                @if (monto > limite5x)
+                {
+                    <div class="alert alert-warning mt-3 mb-0" role="alert">
+                        <strong>Atención:</strong> El monto solicitado supera el límite de 5x el ingreso del cliente (@limite5x.ToString("C")). Esta solicitud <strong>no podrá ser aprobada</strong>, únicamente rechazada.
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card border-secondary">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title mb-0">Dictamen</h5>
+            </div>
+            <div class="card-body">
+                <form asp-controller="Analista" asp-action="Evaluar" method="post">
+                    <input type="hidden" asp-for="SolicitudId" />
+                    
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label class="form-label d-block fw-bold">Acción</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="Accion" value="Aprobar" id="radioAprobar" />
+                            <label class="form-check-label text-success fw-bold" for="radioAprobar">Aprobar</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="Accion" value="Rechazar" id="radioRechazar" />
+                            <label class="form-check-label text-danger fw-bold" for="radioRechazar">Rechazar</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MotivoRechazo" class="form-label fw-bold">Motivo de Rechazo (Obligatorio si rechaza)</label>
+                        <textarea asp-for="MotivoRechazo" class="form-control" rows="3" placeholder="Ingrese la razón del rechazo..."></textarea>
+                        <span asp-validation-for="MotivoRechazo" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-controller="Analista" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-success">Guardar Dictamen</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

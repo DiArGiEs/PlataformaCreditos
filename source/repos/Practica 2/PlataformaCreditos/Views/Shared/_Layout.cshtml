@@ -37,7 +37,7 @@
                             @if (User.IsInRole("Analista"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-danger fw-bold" asp-area="" asp-controller="Evaluacion" asp-action="Pendientes">Evaluar Solicitudes</a>
+                                    <a class="nav-link text-danger fw-bold" asp-controller="Analista" asp-action="Index">Panel Analista</a>
                                 </li>
                             }
                         }

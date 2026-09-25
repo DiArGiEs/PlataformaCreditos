@@ -1,0 +1,70 @@
+@model IEnumerable<PlataformaCreditos.Models.SolicitudCredito>
+
+@{
+    ViewData["Title"] = "Panel de Analista - Solicitudes Pendientes";
+}
+
+<h2 class="mb-4">Panel de Analista - Solicitudes Pendientes</h2>
+
+@if (TempData["MensajeExito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["MensajeExito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["MensajeError"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["MensajeError"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<table class="table table-striped table-bordered align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>ID Cliente</th>
+            <th>Ingresos Mensuales</th>
+            <th>Límite Aprobar (5x)</th>
+            <th>Monto Solicitado</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">No existen solicitudes pendientes por evaluar.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                var limiteAprobacion = (item.Cliente?.IngresosMensuales ?? 0) * 5m;
+                var excedeLimite = item.MontoSolicitado > limiteAprobacion;
+                <tr class="@(excedeLimite ? "table-warning" : "")">
+                    <td>@item.Id</td>
+                    <td>Cliente #@item.ClienteId</td>
+                    <td>@item.Cliente?.IngresosMensuales.ToString("C")</td>
+                    <td>@limiteAprobacion.ToString("C")</td>
+                    <td>
+                        @item.MontoSolicitado.ToString("C")
+                        @if (excedeLimite)
+                        {
+                            <span class="badge bg-warning text-dark ms-1">Excede 5x</span>
+                        }
+                    </td>
+                    <td>@item.FechaSolicitud.ToLocalTime().ToString("g")</td>
+                    <td>
+                        <a asp-controller="Analista" asp-action="Evaluar" asp-route-id="@item.Id" class="btn btn-primary btn-sm">Evaluar</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
