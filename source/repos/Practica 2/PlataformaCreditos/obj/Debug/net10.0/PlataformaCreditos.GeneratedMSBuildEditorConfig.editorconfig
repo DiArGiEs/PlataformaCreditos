@@ -35,6 +35,14 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/dougl/source/repos/Practica 2/PlataformaCreditos/Views/Analista/Evaluar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbGlzdGFcRXZhbHVhci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/dougl/source/repos/Practica 2/PlataformaCreditos/Views/Analista/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5hbGlzdGFcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/dougl/source/repos/Practica 2/PlataformaCreditos/Views/Evaluacion/Evaluar.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXZhbHVhY2lvblxFdmFsdWFyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
